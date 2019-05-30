@@ -9,15 +9,23 @@ app.set('view engine', 'handlebars');
 
 app.set('port', process.env.PORT || 3000);
 
-app.use(express.static(__dirname + '/plublic'));
+app.use(express.static(__dirname + '/public'));
+
+app.use(function(req, res, next) {
+    res.locals.showTests = app.get('env') !== 'production' && 
+        req.query.test === '1';
+    next();
+})
 
 app.get('/', function (req, res) {
     res.render('home'); 
 })
 
-app.get('/about', function (req, res) {
-    res.type('text/plain');
-    res.send('About Meadowlark Travel');
+app.get('/about', function (req, res) {    
+    res.render('about', {
+        fortune: require('./lib/fortune')(),
+        pageTestScript: '/qa/tests-about.js'
+    });
 })
 
 // 404 catch-all 处理器（中间件）
